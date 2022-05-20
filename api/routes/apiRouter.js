@@ -2,7 +2,7 @@ const express = require ('express');
 const { fetchAllMovies } = require('../../services/imdbService') || {};
 let apiRouter = express.Router();
 const Usuario = require('../../dtos/usuario');
-const { criarUsuario } = require('../../services/usuarioService');
+const { criarUsuario, loginUsuario } = require('../../services/usuarioService');
 
 apiRouter.get('/filmes', async (req, res) => {
     const limit = req.query.limit;
@@ -17,6 +17,14 @@ apiRouter.post('/usuarios', async (req, res) => {
     console.log(idNovoUsuario);
 
     res.status(200).json(idNovoUsuario);
+});
+
+apiRouter.post('/login', async (req, res) => {
+   
+    const resultadoLogin = await loginUsuario({login: req.body.login, senha: req.body.senha});
+    console.log(resultadoLogin);
+
+    res.status(200).json(resultadoLogin);
 });
 
 module.exports = apiRouter;

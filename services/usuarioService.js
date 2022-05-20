@@ -1,4 +1,5 @@
-const bcrypt = require('bcryptjs')  
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')  
 const knex = require('knex')({
     client: 'pg',
     debug: false,
@@ -28,4 +29,27 @@ async function criarUsuario(usuario) {
     return id;
 }
 
-module.exports = {criarUsuario};
+async function loginUsuario(credenciais) {
+    knex 
+      .select('*').from('usuarios').where( { login: credenciais.login }) 
+      .then( usuarios => { 
+          if(usuarios.length){ 
+              let usuario = usuarios[0] 
+              let checkSenha = bcrypt.compareSync (credenciais.senha, usuario.senha) 
+              if (checkSenha) { 
+                 var tokenJWT = jwt.sign({ id: usuario.id },  
+                      process.env.SECRET_KEY, { 
+                        expiresIn: 3600 
+                      }) 
+ 
+                  return tokenJWT;
+              } 
+          }
+          return "Login ou senha incorreta!";
+      }) 
+      .catch(err => { 
+        throw new Error("Erro ao tentar logar usuario! " + err);
+    })
+}
+
+module.exports = {criarUsuario, loginUsuario};
