@@ -4,7 +4,7 @@ let apiRouter = express.Router();
 const Usuario = require('../../dtos/usuario');
 const { criarUsuario, loginUsuario } = require('../../services/usuarioService');
 const jwt = require('jsonwebtoken');
-const { adicionarFilme } = require('../../services/listaFilmeService');
+const { adicionarFilme, listarFilmesPorUsuario } = require('../../services/listaFilmeService');
 
 let checkToken = (req, res, next) => {
     let authToken = req.headers["authorization"];
@@ -42,6 +42,17 @@ apiRouter.post('/lista-filmes', checkToken, async (req, res) => {
         const idFilme = await adicionarFilme(usuarioId, codigoImdb);
 
         res.status(201).json({ idFilme });
+    } catch (error) {
+        res.status(500).json({ message: `Erro ao adicionar filme na lista - ${error.message}` })
+    }
+})
+
+apiRouter.get('/lista-filmes', checkToken, async (req, res) => {
+    try {
+        const { usuarioId } = req.query;
+        const filmes = await listarFilmesPorUsuario(usuarioId);
+
+        res.status(200).json(filmes);
     } catch (error) {
         res.status(500).json({ message: `Erro ao adicionar filme na lista - ${error.message}` })
     }
