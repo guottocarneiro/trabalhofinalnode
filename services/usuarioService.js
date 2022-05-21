@@ -13,24 +13,23 @@ const knex = require('knex')({
 
 async function criarUsuario(usuario) {
     let id;
-    knex ('usuarios') 
-    .insert({ 
-        nome: usuario.nome,  
-        login: usuario.login,  
-        senha: bcrypt.hashSync(usuario.senha, 8),
-    }, ['id']) 
-    .then((result) => { 
-        id = result[0].id;
-    })
-    .catch(err => { 
-        throw new Error("Erro ao tentar cadastrar usuario! " + err);
-    })
-
-    return id;
+    return knex ('usuarios') 
+        .insert({ 
+            nome: usuario.nome,  
+            login: usuario.login,  
+            senha: bcrypt.hashSync(usuario.senha, 8),
+        }, ['id']) 
+        .then((result) => { 
+            id = result[0].id;
+            return id;
+        })
+        .catch(err => {
+            throw new Error("Erro ao tentar cadastrar usuario! " + err);
+        })
 }
 
 async function loginUsuario(credenciais) {
-    knex 
+    return knex 
       .select('*').from('usuarios').where( { login: credenciais.login }) 
       .then( usuarios => { 
           if(usuarios.length){ 
