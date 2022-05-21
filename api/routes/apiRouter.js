@@ -5,10 +5,14 @@ const Usuario = require('../../dtos/usuario');
 const { criarUsuario, loginUsuario } = require('../../services/usuarioService');
 
 apiRouter.get('/filmes', async (req, res) => {
-    const limit = req.query.limit;
-    const movies = await fetchAllMovies(limit);
+    try {
+        const limit = req.query.limit;
+        const movies = await fetchAllMovies(limit);
 
-    res.status(200).json(movies);
+        res.status(200).json(movies);
+    } catch (error) {
+        res.status(500).json({ message: `Erro ao obter filmes - ${error.message}` })
+    }
 });
 
 apiRouter.post('/usuarios', async (req, res) => {
