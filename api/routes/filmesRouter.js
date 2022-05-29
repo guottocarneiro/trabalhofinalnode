@@ -2,7 +2,7 @@ const express = require('express');
 const { fetchAllMovies } = require('../../services/imdbService') || {};
 let filmesRouter = express.Router();
 const jwt = require('jsonwebtoken');
-const { adicionarFilme, listarFilmesPorUsuario } = require('../../services/listaFilmeService');
+const { adicionarFilme, listarFilmesPorUsuario, adicionarFilmeAssistido } = require('../../services/listaFilmeService');
 
 let checkToken = (req, res, next) => {
     let authToken = req.headers["authorization"];
@@ -53,6 +53,17 @@ filmesRouter.get('/lista-filmes', checkToken, async (req, res) => {
         res.status(200).json(filmes);
     } catch (error) {
         res.status(500).json({ message: `Erro ao listar filmes do usuário - ${error.message}` })
+    }
+})
+
+filmesRouter.post('/lista-assistidos', checkToken, async (req, res) => {
+    try {
+        const { usuarioId, codigoImdb, nota } = req.body;
+        await adicionarFilmeAssistido(usuarioId, codigoImdb, nota);
+
+        res.status(200).json("Filme adicionado a lista de assistidos!");
+    } catch (error) {
+        res.status(500).json({ message: `Erro ao adicionar filme na lista da assistidos - ${error.message}` })
     }
 })
 

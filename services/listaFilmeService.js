@@ -24,6 +24,22 @@ async function adicionarFilme(usuarioId, codigoImdb) {
         })
 }
 
+async function adicionarFilmeAssistido(usuarioId, codigoImdb, nota) {
+    return knex('lista_assistidos')
+        .insert({
+            usuario_id: usuarioId,
+            codigo_imdb: codigoImdb,
+            nota: nota
+        }, ['id'])
+        .then(result => { 
+            id = result[0].id;
+            return id;
+        })
+        .catch(err => {
+            throw new Error("Erro ao tentar adicionar filme na lista de assistidos! " + err);
+        })
+}
+
 async function listarFilmesPorUsuario(usuarioId) {
     return knex
         .select('*')
@@ -37,4 +53,4 @@ async function listarFilmesPorUsuario(usuarioId) {
         })
 }
 
-module.exports = { adicionarFilme, listarFilmesPorUsuario };
+module.exports = { adicionarFilme, listarFilmesPorUsuario, adicionarFilmeAssistido };
