@@ -1,8 +1,6 @@
 const express = require('express');
 const { fetchAllMovies } = require('../../services/imdbService') || {};
-let apiRouter = express.Router();
-const Usuario = require('../../dtos/usuario');
-const { criarUsuario, loginUsuario } = require('../../services/usuarioService');
+let filmesRouter = express.Router();
 const jwt = require('jsonwebtoken');
 const { adicionarFilme, listarFilmesPorUsuario } = require('../../services/listaFilmeService');
 
@@ -25,7 +23,7 @@ let checkToken = (req, res, next) => {
     })
 }
 
-apiRouter.get('/filmes', async (req, res) => {
+filmesRouter.get('/filmes', async (req, res) => {
     try {
         const limit = req.query.limit;
         const movies = await fetchAllMovies(limit);
@@ -36,7 +34,7 @@ apiRouter.get('/filmes', async (req, res) => {
     }
 });
 
-apiRouter.post('/lista-filmes', checkToken, async (req, res) => {
+filmesRouter.post('/lista-filmes', checkToken, async (req, res) => {
     try {
         const { usuarioId, codigoImdb } = req.body;
         const idFilme = await adicionarFilme(usuarioId, codigoImdb);
@@ -47,37 +45,15 @@ apiRouter.post('/lista-filmes', checkToken, async (req, res) => {
     }
 })
 
-apiRouter.get('/lista-filmes', checkToken, async (req, res) => {
+filmesRouter.get('/lista-filmes', checkToken, async (req, res) => {
     try {
         const { usuarioId } = req.query;
         const filmes = await listarFilmesPorUsuario(usuarioId);
 
         res.status(200).json(filmes);
     } catch (error) {
-        res.status(500).json({ message: `Erro ao adicionar filme na lista - ${error.message}` })
+        res.status(500).json({ message: `Erro ao listar filmes do usuário - ${error.message}` })
     }
 })
 
-apiRouter.post('/usuarios', async (req, res) => {
-    try {
-        const usuario = new Usuario(req.body.nome, req.body.login, req.body.senha);
-        const idNovoUsuario = await criarUsuario(usuario);
-
-        res.status(201).json(idNovoUsuario);
-    } catch (error) {
-        res.status(500).json({ message: `Erro ao cadastrar usuário - ${error.message}` })
-    }
-});
-
-apiRouter.post('/login', async (req, res) => {
-    try {
-
-        const resultadoLogin = await loginUsuario({ login: req.body.login, senha: req.body.senha });
-
-        res.status(201).json(resultadoLogin);
-    } catch (error) {
-        res.status(500).json({ message: `Erro ao realizar login - ${error.message}` })
-    }
-});
-
-module.exports = apiRouter;
+module.exports = filmesRouter;
